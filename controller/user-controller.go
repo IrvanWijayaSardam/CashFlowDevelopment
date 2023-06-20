@@ -17,6 +17,7 @@ import (
 type UserController interface {
 	Update(context *gin.Context)
 	Profile(context *gin.Context)
+	ProfileGoogle(context *gin.Context)
 	SaveFile(context *gin.Context)
 	GetFile(context *gin.Context)
 }
@@ -67,6 +68,20 @@ func (c *userController) Profile(context *gin.Context) {
 	id := fmt.Sprintf("%v", claims["userid"])
 	user := c.userService.Profile(id)
 	res := helper.BuildResponse(true, "OK", user)
+	context.JSON(http.StatusOK, res)
+
+}
+
+func (c *userController) ProfileGoogle(context *gin.Context) {
+	authHeader := context.GetHeader("Authorization")
+	token, err := c.jwtService.ValidateTokenGoogle(authHeader)
+	if err != nil {
+		panic(err.Error())
+	}
+	claims := token.Claims.(jwt.MapClaims)
+	id := fmt.Sprintf("%v", claims["email"])
+	// user := c.userService.Profile(id)
+	res := helper.BuildResponse(true, "OK", id)
 	context.JSON(http.StatusOK, res)
 
 }

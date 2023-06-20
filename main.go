@@ -33,6 +33,11 @@ func main() {
 		authRoutes.POST("/register", authController.Register)
 	}
 
+	googleRoutes := r.Group("api/auth", middleware.AuthorizeJWTGoogle(jwtService))
+	{
+		googleRoutes.POST("/google", userController.ProfileGoogle)
+	}
+
 	trxRoutes := r.Group("api/transaction", middleware.AuthorizeJWT(jwtService))
 	{
 		trxRoutes.GET("/", trxController.All)
