@@ -18,6 +18,7 @@ type UserService interface {
 	Update(user dto.UserUpdateDTO) entity.User
 	Profile(userID string) entity.User
 	SaveFile(file *multipart.FileHeader) (string, error)
+	FindUserByEmail(userEmail string) entity.User
 	UpdateUserProfile(userID uint64, filepath string) error
 	GetFile(fileName string) ([]byte, error)
 }
@@ -44,6 +45,10 @@ func (service *userService) Update(user dto.UserUpdateDTO) entity.User {
 
 func (service *userService) Profile(userID string) entity.User {
 	return service.userRepository.ProfileUser(userID)
+}
+
+func (service *userService) FindUserByEmail(userID string) entity.User {
+	return service.userRepository.FindByEmail(userID)
 }
 
 func (service *userService) UpdateUserProfile(userID uint64, filePath string) error {

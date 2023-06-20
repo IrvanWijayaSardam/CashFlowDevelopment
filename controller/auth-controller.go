@@ -105,5 +105,4 @@ func (c *authController) RegisterGoogle(ctx *gin.Context) {
 		response := helper.BuildResponse(true, "OK!", createdUser)
 		ctx.JSON(http.StatusCreated, response)
 	}
-
 }

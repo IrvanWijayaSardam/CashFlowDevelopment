@@ -80,8 +80,8 @@ func (c *userController) ProfileGoogle(context *gin.Context) {
 	}
 	claims := token.Claims.(jwt.MapClaims)
 	id := fmt.Sprintf("%v", claims["email"])
-	// user := c.userService.Profile(id)
-	res := helper.BuildResponse(true, "OK", id)
+	user := c.userService.FindUserByEmail(id)
+	res := helper.BuildResponse(true, "OK", user)
 	context.JSON(http.StatusOK, res)
 
 }
