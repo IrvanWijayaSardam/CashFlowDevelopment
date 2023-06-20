@@ -10,11 +10,14 @@ import (
 	"github.com/IrvanWijayaSardam/CashFlow/helper"
 	"github.com/IrvanWijayaSardam/CashFlow/service"
 	"github.com/gin-gonic/gin"
+
+	"github.com/dgrijalva/jwt-go"
 )
 
 type AuthController interface {
 	Login(ctx *gin.Context)
 	Register(ctx *gin.Context)
+	RegisterGoogle(ctx *gin.Context)
 }
 
 type authController struct {
@@ -69,4 +72,38 @@ func (c *authController) Register(ctx *gin.Context) {
 		response := helper.BuildResponse(true, "OK!", createdUser)
 		ctx.JSON(http.StatusCreated, response)
 	}
+}
+
+func (c *authController) RegisterGoogle(ctx *gin.Context) {
+	authHeader := ctx.GetHeader("Authorization")
+	token, err := c.jwtService.ValidateTokenGoogle(authHeader)
+	if err != nil {
+		panic(err.Error())
+	}
+	claims := token.Claims.(jwt.MapClaims)
+	// user := c.userService.Profile(id)
+
+	registerDTO := dto.RegisterGoogle{
+		Email:    claims["email"].(string),
+		Name:     claims["name"].(string),
+		Profile:  claims["picture"].(string),
+		IsGoogle: true,
+	}
+	errDTO := ctx.ShouldBind(&registerDTO)
+	if errDTO != nil {
+		response := helper.BuildErrorResponse("Failed to process request", errDTO.Error(), helper.EmptyObj{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+
+	if !c.authService.IsDuplicateEmail(registerDTO.Email) {
+		response := helper.BuildErrorResponse("Failed to process request", "Duplicate email", helper.EmptyObj{})
+		ctx.JSON(http.StatusConflict, response)
+	} else {
+		createdUser := c.authService.CreateUserGoogle(registerDTO)
+		createdUser.Token = authHeader
+		response := helper.BuildResponse(true, "OK!", createdUser)
+		ctx.JSON(http.StatusCreated, response)
+	}
+
 }

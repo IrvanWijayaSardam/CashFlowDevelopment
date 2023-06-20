@@ -13,6 +13,7 @@ import (
 type AuthService interface {
 	VerifyCredential(email string, password string) interface{}
 	CreateUser(user dto.RegisterDTO) entity.User
+	CreateUserGoogle(user dto.RegisterGoogle) entity.User
 	FindByEmail(email string) entity.User
 	IsDuplicateEmail(email string) bool
 }
@@ -40,6 +41,16 @@ func (service *authService) VerifyCredential(email string, password string) inte
 }
 
 func (service *authService) CreateUser(user dto.RegisterDTO) entity.User {
+	userToCreate := entity.User{}
+	err := smapping.FillStruct(&userToCreate, smapping.MapFields(&user))
+	if err != nil {
+		log.Fatalf("Failed map %v", err)
+	}
+	res := service.userRepository.InsertUser(userToCreate)
+	return res
+}
+
+func (service *authService) CreateUserGoogle(user dto.RegisterGoogle) entity.User {
 	userToCreate := entity.User{}
 	err := smapping.FillStruct(&userToCreate, smapping.MapFields(&user))
 	if err != nil {

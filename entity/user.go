@@ -9,5 +9,6 @@ type User struct {
 	Telephone string `gorm:"type:varchar(255)" json:"telp"`
 	Pin       string `gorm:"type:varchar(255)" json:"pin"`
 	Jk        string `gorm:"type:varchar(255)" json:"jk"`
+	IsGoogle  bool   `gorm:"type:bool" json:"isGoogle"`
 	Token     string `gorm:"-" json:"token,omitempty"`
 }
